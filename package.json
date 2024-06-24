@@ -1,6 +1,6 @@
 {
   "name": "text-filter",
-  "version": "2.2.9.0",
+  "version": "2.2.9.1",
   "scripts": {
     "pbiviz": "pbiviz",
     "start": "pbiviz start",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "d3-selection": "^3.0.0",
-    "powerbi-models": "^1.7.0",
+    "powerbi-models": "^1.15.2",
     "powerbi-visuals-api": "~5.3.0",
     "powerbi-visuals-utils-formattingmodel": "^5.0.1"
   }

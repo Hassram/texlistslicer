@@ -236,7 +236,7 @@ export class Visual implements IVisual {
   //   }
   //   this.searchBox.property("value", text);
   // }
-
+  
   private parseStringToList(input: string): string[] {
     // Normalize input by replacing newlines and spaces with commas
     const normalizedInput = input.replace(/\s+/g, ',');
@@ -251,7 +251,10 @@ export class Visual implements IVisual {
 
 
 
-
+  /** 
+   * Perfom search/filtering in a column
+   * @param {string} text - text to filter on
+   */
   public performSearch(text: string) {
     if (this.column) {
       const isBlank = !text.trim()
@@ -272,9 +275,10 @@ export class Visual implements IVisual {
         filterType: 1
       };
 
+console.log("*****searcing for;", this.parseStringToList(text))
 
-
-      if (!isBlank) {
+      if (this.parseStringToList(text).length>0) {
+  
         this.host.applyJsonFilter({
           $schema: 'https://powerbi.com/product/schema#basic',
           target,
@@ -284,6 +288,7 @@ export class Visual implements IVisual {
         }, "general", "filter", action);
       } else {
         this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
+        console.log("This line was hit as it is epty: ")
       }
 
       this.searchBox.property("value", text);
