@@ -33,7 +33,7 @@ import IVisual = powerbi.extensibility.visual.IVisual;
 import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 import FilterAction = powerbi.FilterAction;
-import { IAdvancedFilter, AdvancedFilter } from "powerbi-models";
+import { IAdvancedFilter, AdvancedFilter, BasicFilter, IBasicFilter } from "powerbi-models";
 
 import { Selection as d3Selection, select as d3Select } from "d3-selection";
 
@@ -99,7 +99,7 @@ export class Visual implements IVisual {
     // event listener below is designed to overcome this limitation
     window.addEventListener('focus', (event) => {
       // focus entered from the parent window
-      if (event.target === window){
+      if (event.target === window) {
         this.searchBox.node().focus();
       }
     })
@@ -119,13 +119,13 @@ export class Visual implements IVisual {
       }
     });
 
-// these click handlers also handle "Enter" key press with keyboard navigation
+    // these click handlers also handle "Enter" key press with keyboard navigation
     this.searchButton
       .on("click", () => this.performSearch(this.searchBox.property("value")));
     this.clearButton
-      .on("click", () => this.performSearch(""));
+      .on("click", () => this.performSearch(" "));
 
-      d3Select(this.target)
+    d3Select(this.target)
       .on("contextmenu", (event) => {
         const
           mouseEvent: MouseEvent = event,
@@ -211,6 +211,43 @@ export class Visual implements IVisual {
    * Perfom search/filtering in a column
    * @param {string} text - text to filter on
    */
+  // public performSearch(text: string) {
+  //   if (this.column) {
+  //     const isBlank = ((text || "") + "").match(/^\s*$/);
+  //     const target = {
+  //       table: this.column.queryName.substr(0, this.column.queryName.indexOf(".")),
+  //       column: this.column.queryName.substr(this.column.queryName.indexOf(".") + 1)
+  //     };
+
+  //     let filter: any = null;
+  //     let action = FilterAction.remove;
+  //     if (!isBlank)   {
+  //       filter = new AdvancedFilter(
+  //         target,
+  //         "And",
+  //         {
+  //           operator: "Contains",
+  //           value: text
+  //         }
+  //       );
+  //       action = FilterAction.merge;
+  //     }
+  //     this.host.applyJsonFilter(filter, "general", "filter", action);
+  //   }
+  //   this.searchBox.property("value", text);
+  // }
+
+  private parseStringToList(input: string): string[] {
+    const normalizedInput = input.replace(/\r?\n/g, ',');
+    const list = normalizedInput.split(',');
+    const filteredList = list.map(item => item.trim()) 
+                            .filter(trimmedItem => trimmedItem !== ''); 
+
+    return filteredList;
+}
+
+
+
   public performSearch(text: string) {
     if (this.column) {
       const isBlank = ((text || "") + "").match(/^\s*$/);
@@ -219,21 +256,28 @@ export class Visual implements IVisual {
         column: this.column.queryName.substr(this.column.queryName.indexOf(".") + 1)
       };
 
-      let filter: any = null;
-      let action = FilterAction.remove;
+      const filter: any = null;
+      const action = FilterAction.merge;
+
+      const basicFilter: IBasicFilter = {
+        $schema: 'https://powerbi.com/product/schema#basic',
+        target,
+        operator: "In",
+        values: this.parseStringToList(text),
+        filterType: 1
+      };
+
+
+
       if (!isBlank) {
-        filter = new AdvancedFilter(
-          target,
-          "And",
-          {
-            operator: "Contains",
-            value: text
-          }
-        );
-        action = FilterAction.merge;
+        this.host.applyJsonFilter(basicFilter, "general", "filter", action);
+      } else {
+        this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
       }
-      this.host.applyJsonFilter(filter, "general", "filter", action);
+
+      this.searchBox.property("value", text);
     }
-    this.searchBox.property("value", text);
+
+
   }
 }
