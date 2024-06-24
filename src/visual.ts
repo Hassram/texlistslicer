@@ -123,7 +123,7 @@ export class Visual implements IVisual {
     this.searchButton
       .on("click", () => this.performSearch(this.searchBox.property("value")));
     this.clearButton
-      .on("click", () => this.performSearch(" "));
+      .on("click", () => this.performSearch(""));
 
     d3Select(this.target)
       .on("contextmenu", (event) => {
@@ -238,19 +238,24 @@ export class Visual implements IVisual {
   // }
 
   private parseStringToList(input: string): string[] {
-    const normalizedInput = input.replace(/\r?\n/g, ',');
+    // Normalize input by replacing newlines and spaces with commas
+    const normalizedInput = input.replace(/\s+/g, ',');
+    // Split the input by commas
     const list = normalizedInput.split(',');
-    const filteredList = list.map(item => item.trim()) 
-                            .filter(trimmedItem => trimmedItem !== ''); 
+    // Trim each item and filter out empty strings
+    const filteredList = list.map(item => item.trim())
+                            .filter(trimmedItem => trimmedItem !== '');
 
     return filteredList;
 }
 
 
 
+
   public performSearch(text: string) {
     if (this.column) {
-      const isBlank = ((text || "") + "").match(/^\s*$/);
+      const isBlank = !text.trim()
+      console.log("text entered is:", text, "which is:", isBlank)
       const target = {
         table: this.column.queryName.substr(0, this.column.queryName.indexOf(".")),
         column: this.column.queryName.substr(this.column.queryName.indexOf(".") + 1)
@@ -270,7 +275,13 @@ export class Visual implements IVisual {
 
 
       if (!isBlank) {
-        this.host.applyJsonFilter(basicFilter, "general", "filter", action);
+        this.host.applyJsonFilter({
+          $schema: 'https://powerbi.com/product/schema#basic',
+          target,
+          operator: "In",
+          values: this.parseStringToList(text),
+          filterType: 1
+        }, "general", "filter", action);
       } else {
         this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
       }
