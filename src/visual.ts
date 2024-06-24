@@ -123,7 +123,7 @@ export class Visual implements IVisual {
     this.searchButton
       .on("click", () => this.performSearch(this.searchBox.property("value")));
     this.clearButton
-      .on("click", () => this.performSearch(""));
+      .on("click", () => this.clearSearch());
 
     d3Select(this.target)
       .on("contextmenu", (event) => {
@@ -154,6 +154,7 @@ export class Visual implements IVisual {
   }
 
   public update(options: VisualUpdateOptions) {
+    console.log("update started")
     this.events.renderingStarted(options);
     this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(TextFilterSettingsModel, options.dataViews);
     const metadata = options.dataViews && options.dataViews[0] && options.dataViews[0].metadata;
@@ -207,36 +208,7 @@ export class Visual implements IVisual {
       .style('height', `${fontScaleStd}px`);
   }
 
-  /** 
-   * Perfom search/filtering in a column
-   * @param {string} text - text to filter on
-   */
-  // public performSearch(text: string) {
-  //   if (this.column) {
-  //     const isBlank = ((text || "") + "").match(/^\s*$/);
-  //     const target = {
-  //       table: this.column.queryName.substr(0, this.column.queryName.indexOf(".")),
-  //       column: this.column.queryName.substr(this.column.queryName.indexOf(".") + 1)
-  //     };
 
-  //     let filter: any = null;
-  //     let action = FilterAction.remove;
-  //     if (!isBlank)   {
-  //       filter = new AdvancedFilter(
-  //         target,
-  //         "And",
-  //         {
-  //           operator: "Contains",
-  //           value: text
-  //         }
-  //       );
-  //       action = FilterAction.merge;
-  //     }
-  //     this.host.applyJsonFilter(filter, "general", "filter", action);
-  //   }
-  //   this.searchBox.property("value", text);
-  // }
-  
   private parseStringToList(input: string): string[] {
     // Normalize input by replacing newlines and spaces with commas
     const normalizedInput = input.replace(/\s+/g, ',');
@@ -291,9 +263,15 @@ console.log("*****searcing for;", this.parseStringToList(text))
         console.log("This line was hit as it is epty: ")
       }
 
-      this.searchBox.property("value", text);
+      this.searchBox.property("value",text);
     }
 
+
+  }
+
+  public clearSearch() {
+    this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
+        console.log("Clear button was hit ")
 
   }
 }
