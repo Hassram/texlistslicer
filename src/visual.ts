@@ -83,6 +83,8 @@ export class Visual implements IVisual {
       .attr("autofocus", true)
       .attr("tabindex", 0)
       .classed("accessibility-compliant", true)
+      .classed("searchUi", true)
+      .style("resize", "none")
       .classed("border-on-focus", true);
 
     this.buttonGroup = this.searchUi
@@ -237,7 +239,7 @@ export class Visual implements IVisual {
       .style('padding-right', `${fontScaleStd}px`)
       .style('border-style', textBox.enableBorder.value && 'solid' || 'none')
       .style('border-color', textBox.borderColor.value.value)
-      .style('color', textBox.borderColor.value.value);
+      .style('color', textBox.textColor.value.value);
     // this.searchButton
     //   .style('right', `${fontScaleLrg}px`)
     //   .style('width', `${fontScaleSml}px`)
