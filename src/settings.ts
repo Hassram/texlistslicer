@@ -63,6 +63,12 @@ class TextBoxSettingsCard extends Card {
         value: { value: "#000000" }
     });
 
+    textColor = new ColorPicker({
+        name: "textColor",
+        displayNameKey: "Visual_text_color",
+        value: { value: "#000000" }
+    });
+
     font = new FontControl({
         name: "font",
         displayNameKey: "Visual_Font",
@@ -84,6 +90,6 @@ class TextBoxSettingsCard extends Card {
         })
     });
 
-    slices: Slice[] = [this.font, this.enableBorder, this.borderColor];
+    slices: Slice[] = [this.font, this.enableBorder, this.borderColor, this.textColor];
 }
 

@@ -40,6 +40,8 @@ import { Selection as d3Selection, select as d3Select } from "d3-selection";
 import { TextFilterSettingsModel } from "./settings";
 
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import clearButtonSVG from "./clearButton"
+import searchButtonSVG from "./searchButton"
 
 const pxToPt = 0.75,
   fontPxAdjSml = 20,
@@ -51,9 +53,12 @@ export class Visual implements IVisual {
 
   private target: HTMLElement;
   private searchUi: d3Selection<HTMLDivElement, any, any, any>;
-  private searchBox: d3Selection<HTMLInputElement, any, any, any>;
-  private searchButton: d3Selection<HTMLButtonElement, any, any, any>;
-  private clearButton: d3Selection<HTMLButtonElement, any, any, any>;
+  private buttonGroup: d3Selection<HTMLDivElement, any, any, any>;
+  private searchBox: d3Selection<HTMLTextAreaElement, any, any, any>;
+  // private searchButton: d3Selection<HTMLButtonElement, any, any, any>;
+  // private clearButton: d3Selection<HTMLButtonElement, any, any, any>;
+  private clearButtonSVG: d3Selection<SVGSVGElement, any, any, any>
+  private searchButtonSVG: d3Selection<SVGSVGElement, any, any, any>
   private column: powerbi.DataViewMetadataColumn;
   private host: powerbi.extensibility.visual.IVisualHost;
   private events: IVisualEventService;
@@ -67,8 +72,11 @@ export class Visual implements IVisual {
     this.searchUi = d3Select(this.target)
       .append("div")
       .classed("text-filter-search", true);
+
+
+
     this.searchBox = this.searchUi
-      .append("input")
+      .append("textarea")
       .attr("aria-label", "Enter your search")
       .attr("type", "text")
       .attr("name", "search-field")
@@ -76,24 +84,48 @@ export class Visual implements IVisual {
       .attr("tabindex", 0)
       .classed("accessibility-compliant", true)
       .classed("border-on-focus", true);
-    this.searchButton = this.searchUi
-      .append("button")
-      .classed("c-glyph search-button", true)
-      .attr("name", "search-button")
-      .classed("border-on-focus", true);
-    this.searchButton
-      .append("span")
-      .classed("x-screen-reader", true)
-      .text("Search");
-    this.clearButton = this.searchUi
-      .append("button")
-      .classed("c-glyph clear-button", true)
-      .attr("name", "clear-button")
-      .classed("border-on-focus", true);
-    this.clearButton
-      .append("span")
-      .classed("x-screen-reader", true)
-      .text("Clear");
+
+    this.buttonGroup = this.searchUi
+      .append("div")
+      .classed("button-group", true)
+    // this.searchButton = this.searchUi
+    //   .append("button")
+    //   .classed("c-glyph search-button button", true)
+    //   .attr("name", "search-button")
+    //   .classed("border-on-focus", true);
+    // this.searchButton
+    //   .append("span")
+    //   .classed("x-screen-reader", true)
+    //   .text("Search");
+    // this.clearButton = this.searchUi
+    //   .append("button")
+    //   .classed("c-glyph clear-button button", true)
+    //   .attr("name", "clear-button")
+    //   .classed("border-on-focus", true);
+    // this.clearButton
+    //   .append("span")
+    //   .classed("x-screen-reader", true)
+    //   .text("Clear");
+
+
+
+    this.searchButtonSVG = this.buttonGroup
+      .append("svg")
+      .attr("width", 50)
+      .attr("height", 50);
+
+    this.searchButtonSVG
+      .html(searchButtonSVG)
+
+    this.clearButtonSVG = this.buttonGroup
+      .append("svg")
+      .attr("width", 50)
+      .attr("height", 50);
+
+    this.clearButtonSVG
+      .html(clearButtonSVG)
+
+
 
     // custom visuals require 2 tabs to get to the first focusable element (by design)
     // event listener below is designed to overcome this limitation
@@ -105,7 +137,7 @@ export class Visual implements IVisual {
     })
 
     // focus input after clear button
-    this.clearButton.on("keydown", event => {
+    this.clearButtonSVG.on("keydown", event => {
       if (event.key === "Tab") {
         event.preventDefault();
         this.searchBox.node()?.focus();
@@ -120,10 +152,17 @@ export class Visual implements IVisual {
     });
 
     // these click handlers also handle "Enter" key press with keyboard navigation
-    this.searchButton
-      .on("click", () => this.performSearch(this.searchBox.property("value")));
-    this.clearButton
+    // this.searchButton
+    //   .on("click", () => this.performSearch(this.searchBox.property("value")));
+    this.clearButtonSVG
       .on("click", () => this.clearSearch());
+
+
+    this.clearButtonSVG
+      .on("click", () => this.clearSearch());
+
+    this.searchButtonSVG
+      .on('click', () => this.performSearch(this.searchBox.property("value")))
 
     d3Select(this.target)
       .on("contextmenu", (event) => {
@@ -197,15 +236,17 @@ export class Visual implements IVisual {
       .style('width', `calc(100% - ${fontScaleStd}px)`)
       .style('padding-right', `${fontScaleStd}px`)
       .style('border-style', textBox.enableBorder.value && 'solid' || 'none')
-      .style('border-color', textBox.borderColor.value.value);
-    this.searchButton
-      .style('right', `${fontScaleLrg}px`)
-      .style('width', `${fontScaleSml}px`)
-      .style('height', `${fontScaleSml}px`)
-      .style('font-size', `${fontSize}pt`);
-    this.clearButton
-      .style('width', `${fontScaleStd}px`)
-      .style('height', `${fontScaleStd}px`);
+      .style('border-color', textBox.borderColor.value.value)
+      .style('color', textBox.borderColor.value.value);
+    // this.searchButton
+    //   .style('right', `${fontScaleLrg}px`)
+    //   .style('width', `${fontScaleSml}px`)
+    //   .style('height', `${fontScaleSml}px`)
+    //   .style('font-size', `${fontSize}pt`);
+  //   this.clearButton
+  //     .style('width', `${fontScaleStd}px`)
+  //     .style('height', `${fontScaleStd}px`);
+  // 
   }
 
 
@@ -216,10 +257,10 @@ export class Visual implements IVisual {
     const list = normalizedInput.split(',');
     // Trim each item and filter out empty strings
     const filteredList = list.map(item => item.trim())
-                            .filter(trimmedItem => trimmedItem !== '');
+      .filter(trimmedItem => trimmedItem !== '');
 
     return filteredList;
-}
+  }
 
 
 
@@ -247,10 +288,10 @@ export class Visual implements IVisual {
         filterType: 1
       };
 
-console.log("*****searcing for;", this.parseStringToList(text))
+      console.log("*****searcing for;", this.parseStringToList(text))
 
-      if (this.parseStringToList(text).length>0) {
-  
+      if (this.parseStringToList(text).length > 0) {
+
         this.host.applyJsonFilter({
           $schema: 'https://powerbi.com/product/schema#basic',
           target,
@@ -263,7 +304,7 @@ console.log("*****searcing for;", this.parseStringToList(text))
         console.log("This line was hit as it is epty: ")
       }
 
-      this.searchBox.property("value",text);
+      this.searchBox.property("value", text);
     }
 
 
@@ -271,7 +312,7 @@ console.log("*****searcing for;", this.parseStringToList(text))
 
   public clearSearch() {
     this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
-        console.log("Clear button was hit ")
+    console.log("Clear button was hit ")
 
   }
 }
