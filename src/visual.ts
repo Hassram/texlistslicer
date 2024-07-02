@@ -55,8 +55,7 @@ export class Visual implements IVisual {
   private searchUi: d3Selection<HTMLDivElement, any, any, any>;
   private buttonGroup: d3Selection<HTMLDivElement, any, any, any>;
   private searchBox: d3Selection<HTMLTextAreaElement, any, any, any>;
-  // private searchButton: d3Selection<HTMLButtonElement, any, any, any>;
-  // private clearButton: d3Selection<HTMLButtonElement, any, any, any>;
+
   private clearButtonSVG: d3Selection<SVGSVGElement, any, any, any>
   private searchButtonSVG: d3Selection<SVGSVGElement, any, any, any>
   private column: powerbi.DataViewMetadataColumn;
@@ -65,13 +64,21 @@ export class Visual implements IVisual {
   private formattingSettingsService: FormattingSettingsService;
   private formattingSettings: TextFilterSettingsModel;
   private localizationManager: ILocalizationManager;
+  private viewHeight:Number
+
 
   constructor(options: VisualConstructorOptions) {
     this.events = options.host.eventService;
     this.target = options.element;
+    this.viewHeight = 100
+
+
+  
     this.searchUi = d3Select(this.target)
       .append("div")
-      .classed("text-filter-search", true);
+      // .style("margin", "2px")          
+      // .style("border", "4px solid black")
+      .classed("my-div", true);
 
 
 
@@ -85,44 +92,27 @@ export class Visual implements IVisual {
       .classed("accessibility-compliant", true)
       .classed("searchUi", true)
       .style("resize", "none")
-      .classed("border-on-focus", true);
+      .classed("border-on-focus", true)
+      .style("height", "10% !important");
 
     this.buttonGroup = this.searchUi
       .append("div")
       .classed("button-group", true)
-    // this.searchButton = this.searchUi
-    //   .append("button")
-    //   .classed("c-glyph search-button button", true)
-    //   .attr("name", "search-button")
-    //   .classed("border-on-focus", true);
-    // this.searchButton
-    //   .append("span")
-    //   .classed("x-screen-reader", true)
-    //   .text("Search");
-    // this.clearButton = this.searchUi
-    //   .append("button")
-    //   .classed("c-glyph clear-button button", true)
-    //   .attr("name", "clear-button")
-    //   .classed("border-on-focus", true);
-    // this.clearButton
-    //   .append("span")
-    //   .classed("x-screen-reader", true)
-    //   .text("Clear");
 
 
 
     this.searchButtonSVG = this.buttonGroup
       .append("svg")
-      .attr("width", 50)
-      .attr("height", 50);
+      .attr("width", 32)
+      .attr("height", 32);
 
     this.searchButtonSVG
       .html(searchButtonSVG)
 
     this.clearButtonSVG = this.buttonGroup
       .append("svg")
-      .attr("width", 50)
-      .attr("height", 50);
+      .attr("width", 32)
+      .attr("height", 32);
 
     this.clearButtonSVG
       .html(clearButtonSVG)
@@ -195,7 +185,11 @@ export class Visual implements IVisual {
   }
 
   public update(options: VisualUpdateOptions) {
-    console.log("update started")
+    let width: number = options.viewport.width;
+    this.viewHeight = options.viewport.height - 32 - 20;
+    this.searchUi
+    .attr("height", '{height}px !important')
+
     this.events.renderingStarted(options);
     this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(TextFilterSettingsModel, options.dataViews);
     const metadata = options.dataViews && options.dataViews[0] && options.dataViews[0].metadata;
@@ -230,7 +224,9 @@ export class Visual implements IVisual {
       fontScaleStd = Math.floor((fontSize / pxToPt) + fontPxAdjStd),
       fontScaleLrg = Math.floor((fontSize / pxToPt) + fontPxAdjLrg);
     this.searchUi
-      .style('height', `${fontScaleStd}px`)
+      .style('height', this.viewHeight  +"px"  )
+      .style("margin", 5)
+      .style("padding", 5)
       .style('font-size', `${fontSize}pt`)
       .style('font-family', textBox.font.fontFamily.value);
     this.searchBox
@@ -239,25 +235,14 @@ export class Visual implements IVisual {
       .style('padding-right', `${fontScaleStd}px`)
       .style('border-style', textBox.enableBorder.value && 'solid' || 'none')
       .style('border-color', textBox.borderColor.value.value)
+      .style('font-size', `${fontSize}pt`)
       .style('color', textBox.textColor.value.value);
-    // this.searchButton
-    //   .style('right', `${fontScaleLrg}px`)
-    //   .style('width', `${fontScaleSml}px`)
-    //   .style('height', `${fontScaleSml}px`)
-    //   .style('font-size', `${fontSize}pt`);
-  //   this.clearButton
-  //     .style('width', `${fontScaleStd}px`)
-  //     .style('height', `${fontScaleStd}px`);
-  // 
   }
 
 
   private parseStringToList(input: string): string[] {
-    // Normalize input by replacing newlines and spaces with commas
     const normalizedInput = input.replace(/\s+/g, ',');
-    // Split the input by commas
     const list = normalizedInput.split(',');
-    // Trim each item and filter out empty strings
     const filteredList = list.map(item => item.trim())
       .filter(trimmedItem => trimmedItem !== '');
 
@@ -273,7 +258,7 @@ export class Visual implements IVisual {
   public performSearch(text: string) {
     if (this.column) {
       const isBlank = !text.trim()
-      console.log("text entered is:", text, "which is:", isBlank)
+      // console.log("text entered is:", text, "which is:", isBlank)
       const target = {
         table: this.column.queryName.substr(0, this.column.queryName.indexOf(".")),
         column: this.column.queryName.substr(this.column.queryName.indexOf(".") + 1)
@@ -290,7 +275,6 @@ export class Visual implements IVisual {
         filterType: 1
       };
 
-      console.log("*****searcing for;", this.parseStringToList(text))
 
       if (this.parseStringToList(text).length > 0) {
 
@@ -303,7 +287,6 @@ export class Visual implements IVisual {
         }, "general", "filter", action);
       } else {
         this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
-        console.log("This line was hit as it is epty: ")
       }
 
       this.searchBox.property("value", text);
@@ -314,7 +297,7 @@ export class Visual implements IVisual {
 
   public clearSearch() {
     this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
-    console.log("Clear button was hit ")
+    // console.log("Clear button was hit XX")
 
   }
 }

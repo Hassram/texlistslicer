@@ -1,6 +1,6 @@
 {
     "Visual_Textbox_Settings": "Text box",
-    "Visual_Input_Placeholder": "Search",
+    "Visual_Input_Placeholder": "Enter search terms separated by commas or spaces",
     "Visual_Enable_Border": "Show border",
     "Visual_Border_color": "Border color",
     "Visual_Font_Size": "Text Size",
