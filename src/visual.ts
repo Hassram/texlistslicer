@@ -64,7 +64,7 @@ export class Visual implements IVisual {
   private formattingSettingsService: FormattingSettingsService;
   private formattingSettings: TextFilterSettingsModel;
   private localizationManager: ILocalizationManager;
-  private viewHeight:Number
+  private viewHeight: Number
 
 
   constructor(options: VisualConstructorOptions) {
@@ -73,7 +73,7 @@ export class Visual implements IVisual {
     this.viewHeight = 100
 
 
-  
+
     this.searchUi = d3Select(this.target)
       .append("div")
       // .style("margin", "2px")          
@@ -112,6 +112,7 @@ export class Visual implements IVisual {
     this.clearButtonSVG = this.buttonGroup
       .append("svg")
       .attr("width", 32)
+      .attr('fill', this.searchBox.property("value") == "" ? 'grey' : 'black')
       .attr("height", 32);
 
     this.clearButtonSVG
@@ -188,7 +189,7 @@ export class Visual implements IVisual {
     let width: number = options.viewport.width;
     this.viewHeight = options.viewport.height - 32 - 20;
     this.searchUi
-    .attr("height", '{height}px !important')
+      .attr("height", '{height}px !important')
 
     this.events.renderingStarted(options);
     this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(TextFilterSettingsModel, options.dataViews);
@@ -224,7 +225,7 @@ export class Visual implements IVisual {
       fontScaleStd = Math.floor((fontSize / pxToPt) + fontPxAdjStd),
       fontScaleLrg = Math.floor((fontSize / pxToPt) + fontPxAdjLrg);
     this.searchUi
-      .style('height', this.viewHeight  +"px"  )
+      .style('height', this.viewHeight + "px")
       .style("margin", 5)
       .style("padding", 5)
       .style('font-size', `${fontSize}pt`)
@@ -256,6 +257,9 @@ export class Visual implements IVisual {
    * @param {string} text - text to filter on
    */
   public performSearch(text: string) {
+
+    this.clearButtonSVG
+      .attr('fill', this.searchBox.property("value") == "" ? 'grey' : 'black')
     if (this.column) {
       const isBlank = !text.trim()
       // console.log("text entered is:", text, "which is:", isBlank)
@@ -296,6 +300,9 @@ export class Visual implements IVisual {
   }
 
   public clearSearch() {
+    this.clearButtonSVG
+    .attr('fill','grey')
+
     this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
     // console.log("Clear button was hit XX")
 
