@@ -64,7 +64,7 @@ export class Visual implements IVisual {
   private formattingSettingsService: FormattingSettingsService;
   private formattingSettings: TextFilterSettingsModel;
   private localizationManager: ILocalizationManager;
-  private viewHeight: Number
+  private viewHeight: number
 
 
   constructor(options: VisualConstructorOptions) {
@@ -103,6 +103,7 @@ export class Visual implements IVisual {
 
     this.searchButtonSVG = this.buttonGroup
       .append("svg")
+      .attr('fill','black')
       .attr("width", 32)
       .attr("height", 32);
 
@@ -186,7 +187,7 @@ export class Visual implements IVisual {
   }
 
   public update(options: VisualUpdateOptions) {
-    let width: number = options.viewport.width;
+    const width: number = options.viewport.width;
     this.viewHeight = options.viewport.height - 32 - 20;
     this.searchUi
       .attr("height", '{height}px !important')
@@ -301,7 +302,7 @@ export class Visual implements IVisual {
 
   public clearSearch() {
     this.clearButtonSVG
-    .attr('fill','grey')
+    .attr('fill','Gray')
 
     this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
     // console.log("Clear button was hit XX")
