@@ -27,7 +27,7 @@
 
 import powerbi from "powerbi-visuals-api";
 
-import { Card, ColorPicker, FontControl, FontPicker, Model, NumUpDown, Slice, ToggleSwitch } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
+import { Card, ColorPicker, FontControl, FontPicker, Model, NumUpDown, Slice, ToggleSwitch, TextInput, TextArea } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 export class TextFilterSettingsModel extends Model {
     textBox = new TextBoxSettingsCard();
@@ -69,6 +69,16 @@ class TextBoxSettingsCard extends Card {
         value: { value: "#000000" }
     });
 
+    placeHolderText = new TextInput({
+        name:"Text Placeholder",
+        displayName: "List Placeholder",
+        placeholder: "Enter a list",
+        value:"Enter Search Terms <TO DO>"
+
+
+    });
+
+
     font = new FontControl({
         name: "font",
         displayNameKey: "Visual_Font",
@@ -90,6 +100,6 @@ class TextBoxSettingsCard extends Card {
         })
     });
 
-    slices: Slice[] = [this.font, this.enableBorder, this.borderColor, this.textColor];
+    slices: Slice[] = [this.font, this.enableBorder, this.borderColor, this.textColor, this.placeHolderText];
 }
 

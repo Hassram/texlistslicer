@@ -55,6 +55,12 @@
               }
             }
           }
+        },
+        "placeHolderText": {
+          "displayName": "Placeholder Text",
+          "type": {
+            "text": true
+          }
         }
       }
     }
